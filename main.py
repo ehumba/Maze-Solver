@@ -70,6 +70,15 @@ class Cell:
             self._win.draw_line(top_wall,"black")
         if self.has_bottom_wall == True:
             self._win.draw_line(bottom_wall,"black")
+    def draw_move(self, to_cell, undo=False):
+        centre1 = Point((self._x1 + self._x2) / 2, (self._y1 + self._y2) / 2)
+        centre2 = Point((to_cell._x1 + to_cell._x2) / 2, (to_cell._y1 + to_cell._y2) / 2)
+        move = Line(centre1, centre2)
+        if undo == False:
+            self._win.draw_line(move, "red")
+        if undo == True:
+            self._win.draw_line(move, "grey")
+
 
         
 
@@ -77,11 +86,10 @@ class Cell:
 def main():
     win = Window(800, 600)
     c1 = Cell(1, 30, 30, 60, win)
-    c2 = Cell(50, 10, 70, 20, win, True, True, False, False)
-    c3 = Cell(80, 90, 90, 130, win, False, False, True, True)
+    c2 = Cell(50, 10, 70, 20, win)
     c1.draw()
     c2.draw()
-    c3.draw()
+    c1.draw_move(c2)
     win.wait_for_close()
 
 main()
