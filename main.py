@@ -71,6 +71,14 @@ class Cell:
             self._win.draw_line(top_wall,"black")
         if self.has_bottom_wall == True:
             self._win.draw_line(bottom_wall,"black")
+        if self.has_left_wall == False:
+            self._win.draw_line(left_wall, "#d9d9d9")
+        if self.has_right_wall == False:
+            self._win.draw_line(right_wall,"#d9d9d9")
+        if self.has_top_wall == False:
+            self._win.draw_line(top_wall,"#d9d9d9")
+        if self.has_bottom_wall == False:
+            self._win.draw_line(bottom_wall,"#d9d9d9")
     def draw_move(self, to_cell, undo=False):
         centre1 = Point((self._x1 + self._x2) / 2, (self._y1 + self._y2) / 2)
         centre2 = Point((to_cell._x1 + to_cell._x2) / 2, (to_cell._y1 + to_cell._y2) / 2)
@@ -126,16 +134,16 @@ class Maze:
         self._animate()
     def _animate(self):
         self.win.redraw()
-        time.sleep(0.1)
+        time.sleep(0.03)
+    def _break_entrance_and_exit(self):
+        self._cells[0][0].has_top_wall = False
+        self._draw_cell(0, 0)
+        self._cells[self.num_cols-1][self.num_rows-1].has_bottom_wall = False
+        self._draw_cell(self.num_cols-1, self.num_rows-1)
 
 
 
 def main():
-    win = Window(800, 600)
-    num_cols = 12
-    num_rows = 10
-    m1 = Maze(0, 0, num_rows, num_cols, 10, 10, win)
-    m1._create_cells()
-    win.wait_for_close()
+    pass
 
 main()
