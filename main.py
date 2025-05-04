@@ -1,5 +1,6 @@
 from tkinter import Tk, BOTH, Canvas
 import time
+import random
 
 
 class Window:
@@ -52,6 +53,7 @@ class Cell:
         self._y1 = y1
         self._y2 = y2
         self._win = window
+        self.visited = False
 
 
     def draw(self):
@@ -99,6 +101,7 @@ class Maze:
         cell_size_x,
         cell_size_y,
         win,
+        seed=False
     ):
         self.x1 = x1
         self.y1 = y1
@@ -107,6 +110,8 @@ class Maze:
         self.cell_size_x = cell_size_x
         self.cell_size_y = cell_size_y
         self.win = win
+        if seed is not False:
+            random.seed(seed)
         self._create_cells()
     def _create_cells(self):
         self._cells = []
@@ -140,10 +145,47 @@ class Maze:
         self._draw_cell(0, 0)
         self._cells[self.num_cols-1][self.num_rows-1].has_bottom_wall = False
         self._draw_cell(self.num_cols-1, self.num_rows-1)
+    
+    def _break_walls_r(self, i, j):
+        self._cells[i][j].visited = True
+        while True:
+            visit = []
+            if j > 0 and not self._cells[i][j - 1].visited:
+                visit.append(("down", i, j - 1))
+            if j < self.num_rows - 1 and not self._cells[i][j + 1].visited:
+                visit.append(("up", i, j + 1))
+            if i > 0 and not self._cells[i - 1][j].visited:
+                visit.append(("left", i - 1, j))
+            if i < self.num_cols - 1 and not self._cells[i + 1][j].visited:
+                visit.append(("right", i + 1, j))
+            if len(visit) == 0:
+                self._cells[i][j].draw()
+                return
+            
+            direction, ni, nj = random.choice(visit)
+            if direction == "up":
+                self._cells[i][j].has_top_wall = False
+                self._cells[ni][nj].has_bottom_wall = False
+            if direction == "right":
+                self._cells[i][j].has_right_wall = False
+                self._cells[ni][nj].has_left_wall = False
+            if direction == "down":
+                self._cells[i][j].has_bottom_wall = False
+                self._cells[ni][nj].has_top_wall = False
+            if direction == "left":
+                self._cells[i][j].has_left_wall = False
+                self._cells[ni][nj].has_right_wall = False
+            
+            self._break_walls_r(ni, nj)
 
 
 
 def main():
-    pass
+    win = Window(400, 400)
+    m1 = Maze(0, 0, 12, 12, 10, 10, win)
+    m1._create_cells()
+    m1._break_entrance_and_exit()
+    m1._break_walls_r(1, 1)
+    win.wait_for_close()
 
 main()
