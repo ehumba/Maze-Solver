@@ -65,22 +65,11 @@ class Cell:
         top_wall = Line(top_left, top_right)
         right_wall = Line(top_right, bot_right)
         bottom_wall = Line(bot_left, bot_right)
-        if self.has_left_wall == True:
-            self._win.draw_line(left_wall, "black")
-        if self.has_right_wall == True:
-            self._win.draw_line(right_wall,"black")
-        if self.has_top_wall == True:
-            self._win.draw_line(top_wall,"black")
-        if self.has_bottom_wall == True:
-            self._win.draw_line(bottom_wall,"black")
-        if self.has_left_wall == False:
-            self._win.draw_line(left_wall, "#d9d9d9")
-        if self.has_right_wall == False:
-            self._win.draw_line(right_wall,"#d9d9d9")
-        if self.has_top_wall == False:
-            self._win.draw_line(top_wall,"#d9d9d9")
-        if self.has_bottom_wall == False:
-            self._win.draw_line(bottom_wall,"#d9d9d9")
+        self._win.draw_line(left_wall, "black" if self.has_left_wall else "#d9d9d9")
+        self._win.draw_line(right_wall,"black" if self.has_right_wall else "#d9d9d9")
+        self._win.draw_line(top_wall, "black" if self.has_left_wall else "#d9d9d9")
+        self._win.draw_line(bottom_wall,"black" if self.has_right_wall else "#d9d9d9")
+        
     def draw_move(self, to_cell, undo=False):
         centre1 = Point((self._x1 + self._x2) / 2, (self._y1 + self._y2) / 2)
         centre2 = Point((to_cell._x1 + to_cell._x2) / 2, (to_cell._y1 + to_cell._y2) / 2)
@@ -130,6 +119,11 @@ class Maze:
             for row in range(self.num_rows):
                 self._draw_cell(col, row)
 
+    def _reset_cells_visited(self):
+        for col in self._cells:
+            for cell in col:
+                cell.visited = False
+
     def _draw_cell(self, i, j):
         x1 = self.x1 + i * self.cell_size_x
         y1 = self.y1 + j * self.cell_size_y
@@ -178,6 +172,38 @@ class Maze:
             
             self._break_walls_r(ni, nj)
 
+    def solve(self, i, j):
+        self._animate()
+        self._cells[i][j].visited = True
+        if self._cells[i][j] == self._cells[self.num_cols-1][self.num_rows-1]:
+            return True
+        
+        directions = []
+        if j > 0:
+            next_cell = self._cells[i][j - 1]
+            if not next_cell.has_top_wall and not self._cells[i][j].has_bottom_wall and not next_cell.visited:
+                directions.append((next_cell, i, j-1))
+        if j < self.num_rows - 1:  # Up
+            next_cell = self._cells[i][j + 1]
+            if not next_cell.has_bottom_wall and not self._cells[i][j].has_top_wall and not next_cell.visited:
+                directions.append((next_cell, i, j + 1))
+        if i > 0:  # Left
+            next_cell = self._cells[i - 1][j]
+            if not next_cell.has_right_wall and not self._cells[i][j].has_left_wall and not next_cell.visited:
+                directions.append((next_cell, i - 1, j))
+        if i < self.num_cols - 1:  # Right
+            next_cell = self._cells[i + 1][j]
+            if not next_cell.has_left_wall and not self._cells[i][j].has_right_wall and not next_cell.visited:
+                directions.append((next_cell, i + 1, j))
+        
+        for next_cell, ni, nj in directions:
+            self._cells[i][j].draw_move(next_cell)
+            if self.solve(ni, nj) == True:
+                return True
+            else:
+                self._cells[i][j].draw_move(next_cell, True)
+        return False
+
 
 
 def main():
@@ -186,6 +212,8 @@ def main():
     m1._create_cells()
     m1._break_entrance_and_exit()
     m1._break_walls_r(1, 1)
+    m1._reset_cells_visited()
+    m1.solve(0, 0)
     win.wait_for_close()
 
 main()
