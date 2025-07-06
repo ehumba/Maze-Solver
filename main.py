@@ -67,8 +67,8 @@ class Cell:
         bottom_wall = Line(bot_left, bot_right)
         self._win.draw_line(left_wall, "black" if self.has_left_wall else "#d9d9d9")
         self._win.draw_line(right_wall,"black" if self.has_right_wall else "#d9d9d9")
-        self._win.draw_line(top_wall, "black" if self.has_left_wall else "#d9d9d9")
-        self._win.draw_line(bottom_wall,"black" if self.has_right_wall else "#d9d9d9")
+        self._win.draw_line(top_wall, "black" if self.has_top_wall else "#d9d9d9")
+        self._win.draw_line(bottom_wall,"black" if self.has_bottom_wall else "#d9d9d9")
         
     def draw_move(self, to_cell, undo=False):
         centre1 = Point((self._x1 + self._x2) / 2, (self._y1 + self._y2) / 2)
